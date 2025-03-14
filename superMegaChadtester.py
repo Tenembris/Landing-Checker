@@ -14,7 +14,6 @@ def send_discord_notification(webhook_url, message):
     payload = {"content": message}
     try:
         response = requests.post(webhook_url, json=payload)
-        # Discord zwraca status 204 przy poprawnym wysłaniu wiadomości
         if response.status_code == 204:
             print("Powiadomienie Discord wysłane.")
         else:
@@ -25,7 +24,7 @@ def send_discord_notification(webhook_url, message):
 def accept_cookies(driver, wait):
     try:
         accept_button = wait.until(EC.element_to_be_clickable(
-            (By.XPATH, "//button[contains(text(),'Akceptuji') or contains(text(),'Akceptuję')]")))
+            (By.XPATH, "//button[contains(text(),'Akceptuji') or contains(text(),'Akceptujte')]")))
         accept_button.click()
         print("Cookies zaakceptowane.")
     except TimeoutException:
@@ -128,7 +127,8 @@ def process_form(form_url):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     
-    service = Service("chromedriver.exe")
+    # Używamy "chromedriver" bez rozszerzenia .exe, bo na Ubuntu.
+    service = Service("chromedriver")
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
     driver.get(form_url)
