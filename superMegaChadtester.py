@@ -1,3 +1,4 @@
+import os
 import time
 import random
 import pandas as pd
@@ -9,6 +10,12 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
+
+# Ustawienie ścieżki do chromedrivera zależnie od środowiska
+if os.getenv("GITHUB_ACTIONS") == "true":
+    chromedriver_path = "/usr/bin/chromedriver"
+else:
+    chromedriver_path = "./chromedriver"
 
 def send_discord_notification(webhook_url, message):
     payload = {"content": message}
@@ -127,8 +134,7 @@ def process_form(form_url):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     
-    # Używamy relatywnej ścieżki, zakładając, że chromedriver znajduje się w tym samym folderze co skrypt.
-    service = Service("./chromedriver")
+    service = Service(chromedriver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
     driver.get(form_url)
