@@ -94,7 +94,7 @@ def fill_and_submit_form(driver, wait):
         print("Przekierowano do strony podziękowania. Formularz wysłany.")
         result["Formularz"] = "Wysłany"
     except TimeoutException:
-        print("Brak przekierowania do strony podziękowania w ciągu 30 sekund. Aktualny URL:", driver.current_url)
+        print("Brak przekierowania do strony podziękowania. Aktualny URL:", driver.current_url)
     
     try:
         logs = driver.get_log("browser")
@@ -134,9 +134,12 @@ def process_form(form_url):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     
-    # Dodanie unikalnego katalogu użytkownika
-    user_data_dir = tempfile.mkdtemp()
-    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
+    if os.getenv("GITHUB_ACTIONS") == "true":
+        chrome_options.add_argument("--headless")
+    else:
+        # Używamy unikalnego katalogu danych
+        user_data_dir = tempfile.mkdtemp()
+        chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
     
     service = Service(chromedriver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
