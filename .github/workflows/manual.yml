@@ -2,7 +2,7 @@ name: Run Form Processor
 
 on:
   schedule:
-    - cron: "25 12 * * *"  # Uruchamia codziennie o 15:00 UTC; dostosuj, jeśli potrzebujesz
+    - cron: "33 12 * * *"  # Uruchamia codziennie o 15:00 UTC; dostosuj, jeśli potrzebujesz
   workflow_dispatch:      # Pozwala uruchomić ręcznie
 
 jobs:
@@ -37,4 +37,4 @@ jobs:
         sudo chmod +x /usr/local/bin/chromedriver
 
     - name: Run the script
-      run: python your_script.py
+      run: python superMegaChadtester.py
