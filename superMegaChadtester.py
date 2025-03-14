@@ -2,7 +2,6 @@ import time
 import random
 import pandas as pd
 import requests
-import schedule
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -173,13 +172,5 @@ def main():
             send_discord_notification(discord_webhook_url, message)
         time.sleep(random.uniform(3, 8))
 
-def job():
+if __name__ == "__main__":
     main()
-    exit()
-
-# Harmonogram – uruchomienie codziennie o 15:00
-schedule.every().day.at("11:10").do(job)
-
-while True:
-    schedule.run_pending()
-    time.sleep(60)
