@@ -1,6 +1,7 @@
 import os
 import time
 import random
+import tempfile
 import pandas as pd
 import requests
 from selenium import webdriver
@@ -11,7 +12,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-# Ustawienie ścieżki do chromedrivera zależnie od środowiska
 if os.getenv("GITHUB_ACTIONS") == "true":
     chromedriver_path = "/usr/bin/chromedriver"
 else:
@@ -133,6 +133,10 @@ def process_form(form_url):
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
+    
+    # Dodanie unikalnego katalogu użytkownika
+    user_data_dir = tempfile.mkdtemp()
+    chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
     
     service = Service(chromedriver_path)
     driver = webdriver.Chrome(service=service, options=chrome_options)
