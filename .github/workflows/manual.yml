@@ -4,7 +4,7 @@ on:
   push:
     branches: [ main ]
   schedule:
-    - cron: '30 12 * * *'  # codziennie o 15:00 UTC
+    - cron: '0 15 * * *'  # codziennie o 15:00 UTC
 
 jobs:
   test:
@@ -23,13 +23,11 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas requests schedule selenium
 
-      - name: Set up Chrome
-        uses: actions/setup-chrome@v3
-
-      - name: Set up Chromedriver
-        uses: actions/setup-chromedriver@v3
-        with:
-          chromedriver-version: 'latest'
+      - name: Install Chrome and Chromedriver
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          sudo ln -s /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver
 
       - name: Run tests
         run: |
