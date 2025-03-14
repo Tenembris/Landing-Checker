@@ -2,7 +2,7 @@ name: Run Form Processor
 
 on:
   schedule:
-    - cron: "07 12 * * *"  # Uruchamia codziennie o 15:00 UTC; dostosuj, jeśli potrzebujesz
+    - cron: "10 12 * * *"  # Uruchamia codziennie o 15:00 UTC; dostosuj, jeśli potrzebujesz
   workflow_dispatch:      # Pozwala uruchomić ręcznie
 
 jobs:
