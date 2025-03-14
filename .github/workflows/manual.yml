@@ -1,0 +1,40 @@
+name: Run Form Processor
+
+on:
+  schedule:
+    - cron: "0 15 * * *"  # Uruchamia codziennie o 15:00 UTC; dostosuj, jeśli potrzebujesz
+  workflow_dispatch:      # Pozwala uruchomić ręcznie
+
+jobs:
+  run-form:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repozytorium
+      uses: actions/checkout@v3
+
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Jeśli nie masz pliku requirements.txt, możesz zainstalować potrzebne biblioteki:
+        # pip install pandas requests schedule selenium
+
+    - name: Install Google Chrome and ChromeDriver
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget unzip
+        wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+        sudo dpkg -i google-chrome-stable_current_amd64.deb || sudo apt-get -fy install
+        wget https://chromedriver.storage.googleapis.com/$(curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE)/chromedriver_linux64.zip
+        unzip chromedriver_linux64.zip
+        sudo mv chromedriver /usr/local/bin/
+        sudo chmod +x /usr/local/bin/chromedriver
+
+    - name: Run the script
+      run: python your_script.py
