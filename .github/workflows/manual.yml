@@ -2,7 +2,7 @@ name: Selenium Form Checker
 
 on:
   schedule:
-    - cron: '45 10 * * *'  # Uruchom codziennie o 10:45 UTC (dostosuj, jeśli potrzeba)
+    - cron: '54 12 * * *'  # Uruchom codziennie o 10:45 UTC (dostosuj, jeśli potrzeba)
   push:
     branches: [ main ]
   workflow_dispatch:
