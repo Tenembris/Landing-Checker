@@ -24,7 +24,7 @@ def send_discord_notification(webhook_url, message):
 def accept_cookies(driver, wait):
     try:
         accept_button = wait.until(EC.element_to_be_clickable(
-            (By.XPATH, "//button[contains(text(),'Akceptuji') or contains(text(),'Akceptujte')]")))
+            (By.XPATH, "//button[contains(text(),'Akceptuji') or contains(text(),'Akceptuję')]")))
         accept_button.click()
         print("Cookies zaakceptowane.")
     except TimeoutException:
@@ -127,8 +127,8 @@ def process_form(form_url):
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     
-    # Używamy "chromedriver" bez rozszerzenia .exe, bo na Ubuntu.
-    service = Service("chromedriver")
+    # Używamy relatywnej ścieżki, zakładając, że chromedriver znajduje się w tym samym folderze co skrypt.
+    service = Service("./chromedriver")
     driver = webdriver.Chrome(service=service, options=chrome_options)
     
     driver.get(form_url)
