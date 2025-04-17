@@ -32,31 +32,20 @@ def accept_cookies(driver, wait):
 def fill_and_submit_form(driver, wait):
     result = {"URL": driver.current_url, "Formularz": "Nie wysłany"}
 
-    # wypełnianie pól
-    try:
-        el = driver.find_element(By.ID, "form-field-FirstName")
-        el.clear(); el.send_keys("test")
-        print("Pole 'FirstName' wypełnione.")
-    except Exception:
-        print("Nie znaleziono pola FirstName.")
-    try:
-        el = driver.find_element(By.ID, "form-field-LastName")
-        el.clear(); el.send_keys("Testowy")
-        print("Pole 'LastName' wypełnione.")
-    except Exception:
-        print("Nie znaleziono pola LastName.")
-    try:
-        el = driver.find_element(By.ID, "form-field-email")
-        el.clear(); el.send_keys("test@test.pl")
-        print("Pole 'email' wypełnione.")
-    except Exception:
-        print("Nie znaleziono pola email.")
-    try:
-        el = driver.find_element(By.ID, "form-field-field_9f38431")
-        el.clear(); el.send_keys("999999999")
-        print("Pole 'telefon' wypełnione.")
-    except Exception:
-        print("Nie znaleziono pola telefon.")
+    for field_id, value, name in [
+        ("form-field-FirstName", "test", "FirstName"),
+        ("form-field-LastName", "Testowy", "LastName"),
+        ("form-field-email", "test@test.pl", "email"),
+        ("form-field-field_9f38431", "999999999", "telefon"),
+    ]:
+        try:
+            el = driver.find_element(By.ID, field_id)
+            el.clear()
+            el.send_keys(value)
+            print(f"Pole '{name}' wypełnione.")
+        except Exception:
+            print(f"Nie znaleziono pola {name}.")
+
     try:
         cb = driver.find_element(By.ID, "form-field-field_43067ff")
         if not cb.is_selected():
@@ -67,7 +56,6 @@ def fill_and_submit_form(driver, wait):
 
     time.sleep(random.uniform(3, 8))
 
-    # przycisk Wyślij – scroll + click z fallbackem JS
     try:
         submit = wait.until(EC.element_to_be_clickable(
             (By.XPATH, "//button[contains(.,'Wyślij')]")))
@@ -81,7 +69,6 @@ def fill_and_submit_form(driver, wait):
     except TimeoutException:
         print("Nie znaleziono przycisku 'Wyślij'.")
 
-    # czekaj na przekierowanie
     try:
         WebDriverWait(driver, 30).until(
             lambda d: "podziękowanie" in d.current_url.lower())
@@ -90,20 +77,12 @@ def fill_and_submit_form(driver, wait):
     except TimeoutException:
         print("Brak przekierowania do strony podziękowania:", driver.current_url)
 
-    # zbieranie logów i błędów
     try:
         logs = driver.get_log("browser")
     except Exception:
         logs = []
-    serious = []
-    error404 = False
-    for log in logs:
-        msg = log["message"]
-        if log["level"] == "SEVERE":
-            serious.append(msg)
-        if "404" in msg:
-            error404 = True
-    if error404:
+    serious = [log["message"] for log in logs if log["level"] == "SEVERE"]
+    if any("404" in log["message"] for log in logs):
         result["Error"] = "BŁĄD 404"
     if serious:
         print("Poważne błędy w konsoli:")
@@ -117,7 +96,7 @@ def fill_and_submit_form(driver, wait):
 def process_form(form_url):
     print("\nPrzetwarzanie:", form_url)
     chrome_options = Options()
-   
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
