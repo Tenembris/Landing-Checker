@@ -3,7 +3,7 @@ name: Daily Selenium Job
 # Uruchamiaj codziennie o 7:00 UTC (9:00 czasu polskiego latem, 8:00 zimą)
 on:
   schedule:
-    - cron:  "0 8 15 * *"
+    - cron:  "0 8 25 * *"
   workflow_dispatch:  # umożliwia ręczne odpalenie workflow z interfejsu GitHub
 
 jobs:
