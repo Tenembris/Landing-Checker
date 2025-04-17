@@ -117,7 +117,7 @@ def fill_and_submit_form(driver, wait):
 def process_form(form_url):
     print("\nPrzetwarzanie:", form_url)
     chrome_options = Options()
-    chrome_options.add_argument("--headless")
+   
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
@@ -150,7 +150,7 @@ def main():
         print("Błąd wczytywania CSV:", e)
         return
 
-    webhook = "https://discord.com/api/webhooks/1350026426040057889/…"
+    webhook = "https://discord.com/api/webhooks/1350026426040057889/bA7k5h7e6SqyeD0O-ejicgMBZg918SOapcVTNP3WFcTRenab-BSxwIZ209oyy668_AHc"
     for link in links:
         res = process_form(link)
         if not res:
