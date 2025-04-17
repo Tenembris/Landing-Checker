@@ -2,7 +2,7 @@ name: Daily Selenium Job
 
 on:
   schedule:
-    - cron: "25 8 * * *"    # codziennie o 10:25 CEST (8:25 UTC)
+    - cron: "08 9 * * *"    # codziennie o 10:25 CEST (8:25 UTC)
   workflow_dispatch:
 
 jobs:
