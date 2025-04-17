@@ -2,7 +2,7 @@ name: Daily Selenium Job
 
 on:
   schedule:
-    - cron: "08 9 * * *"    # codziennie o 10:25 CEST (8:25 UTC)
+    - cron: "17 9 * * *"    # codziennie o 10:25 CEST (8:25 UTC)
   workflow_dispatch:
 
 jobs:
@@ -24,20 +24,14 @@ jobs:
       - name: Install Google Chrome
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip xvfb
+          sudo apt-get install -y wget unzip
           wget -q -O chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i chrome.deb || sudo apt-get install -fy
-          sudo ln -sf /usr/bin/google-chrome-stable /usr/bin/google-chrome
 
-      - name: Download ChromeDriver (Linux)
-        run: |
-          CHROME_VERSION=$(google-chrome-stable --version | awk '{print $3}')
-          CHROME_MAJOR=${CHROME_VERSION%%.*}
-          DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}")
-          wget -q -O driver.zip "https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip"
-          unzip -q driver.zip
-          chmod +x chromedriver
-          sudo mv chromedriver /usr/local/bin/chromedriver
+      - name: Setup ChromeDriver
+        uses: nanasess/setup-chromedriver@v1
+        with:
+          version: latest
 
       - name: Run Python script
-        run: python superMegaChadtester.py   # zamień na nazwę Twojego pliku
+        run: python superMegaChadtester.py   # zamień na faktyczną nazwę Twojego skryptu
