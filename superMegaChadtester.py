@@ -71,7 +71,7 @@ def fill_and_submit_form(driver, wait):
 
     try:
         WebDriverWait(driver, 30).until(
-            lambda d: "podziękowanie" in d.current_url.lower())
+            lambda d: "podziekowanie" in d.current_url.lower())
         print("Podziękowanie – formularz wysłany.")
         result["Formularz"] = "Wysłany"
     except TimeoutException:
