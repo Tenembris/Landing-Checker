@@ -1,35 +1,52 @@
-name: Selenium Form Checker
+name: Daily Selenium Job
 
+# Uruchamiaj codziennie o 7:00 UTC (9:00 czasu polskiego latem, 8:00 zimą)
 on:
   schedule:
-    - cron: '43 13 * * *'  # Uruchom codziennie o 10:45 UTC (dostosuj jeśli potrzeba)
-  push:
-    branches: [ main ]
-  workflow_dispatch:
+    - cron:  "0 8 15 * *"
+  workflow_dispatch:  # umożliwia ręczne odpalenie workflow z interfejsu GitHub
 
 jobs:
-  run-checker:
+  run-selenium-script:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repozytorium
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
-      - name: Install Python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+      - name: Install dependencies
+        run: pip install pandas requests selenium
 
-      - name: Install Chrome and Chromedriver
+      - name: Install Google Chrome
         run: |
           sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
-          sudo ln -sf /usr/lib/chromium-browser/chromedriver /usr/bin/chromedriver || true
+          sudo apt-get install -y wget unzip xvfb
+          wget -q -O google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome.deb || sudo apt-get install -fy
 
-      - name: Run Selenium Form Checker
-        run: python superMegaChadtester.py
+      - name: Download ChromeDriver (Linux)
+        run: |
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+          CHROME_MAJOR=$(echo "$CHROME_VERSION" | cut -d '.' -f1)
+          DRIVER_VERSION=$(curl -s "https://chromedriver.storage.googleapis.com/LATEST_RELEASE_${CHROME_MAJOR}")
+          echo "Google Chrome version: $CHROME_VERSION -> Pobieram ChromeDriver v$DRIVER_VERSION"
+          wget -q -O chromedriver_linux64.zip "https://chromedriver.storage.googleapis.com/${DRIVER_VERSION}/chromedriver_linux64.zip"
+          unzip -q chromedriver_linux64.zip
+          chmod +x chromedriver
+          sudo mv chromedriver /usr/local/bin/chromedriver
+
+      # Jeśli chcesz uruchomić Chrome w trybie nie-headless, odkomentuj poniższy blok, 
+      # aby uruchomić wirtualny ekran Xvfb (oraz upewnij się, że DISPLAY jest ustawiony).
+      # - name: Start Xvfb
+      #   run: Xvfb :99 -screen 0 1920x1080x24 &
+      # - name: Set display (if not headless)
+      #   run: echo "DISPLAY=:99" >> $GITHUB_ENV
+
+      - name: Run Python script
+        env:
+          # DISPLAY: :99  # jeśli używasz Xvfb i trybu graficznego
+        run: python script.py
