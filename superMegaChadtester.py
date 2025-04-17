@@ -79,7 +79,7 @@ def fill_and_submit_form(driver):
 
     # oczekiwanie na redirect do URL zawierającego "podziekowanie"
     try:
-        WebDriverWait(driver, 20).until(
+        WebDriverWait(driver, 30).until(
             lambda d: "podziekowanie" in d.current_url.lower()
         )
         print("Podziękowanie – formularz wysłany.")
