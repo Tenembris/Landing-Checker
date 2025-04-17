@@ -20,9 +20,8 @@ def send_discord_notification(webhook_url, message):
     except Exception as e:
         print("Błąd przy wysyłaniu powiadomienia Discord:", e)
 
-def accept_cookies(driver):
+def accept_cookies(driver, wait):
     try:
-        wait = WebDriverWait(driver, 10)
         btn = wait.until(EC.element_to_be_clickable(
             (By.XPATH, "//button[contains(text(),'Akceptuji') or contains(text(),'Akceptuję')]")))
         btn.click()
@@ -30,11 +29,10 @@ def accept_cookies(driver):
     except TimeoutException:
         print("Nie znaleziono przycisku akceptacji cookies.")
 
-def fill_and_submit_form(driver):
+def fill_and_submit_form(driver, wait):
     result = {"URL": driver.current_url, "Formularz": "Nie wysłany"}
-    wait = WebDriverWait(driver, 15)
 
-    # wypełnianie pól
+    # wypełnianie pól tekstowych
     for field_id, value, name in [
         ("form-field-FirstName", "test", "FirstName"),
         ("form-field-LastName", "Testowy", "LastName"),
@@ -49,17 +47,23 @@ def fill_and_submit_form(driver):
         except Exception:
             print(f"Nie znaleziono pola {name}.")
 
-    # checkbox – czekaj i scroll, potem click
+    # zaznaczenie pierwszego widocznego checkboxa
     try:
-        cb = wait.until(EC.element_to_be_clickable(
-            (By.ID, "form-field-field_43067ff")))
-        driver.execute_script("arguments[0].scrollIntoView(true);", cb)
-        time.sleep(0.5)
-        if not cb.is_selected():
-            cb.click()
-        print("Checkbox zaznaczony.")
-    except Exception:
-        print("Nie znaleziono checkboxa.")
+        checkboxes = driver.find_elements(By.CSS_SELECTOR, "input[type='checkbox']")
+        for cb in checkboxes:
+            if cb.is_displayed() and cb.is_enabled():
+                driver.execute_script("arguments[0].scrollIntoView(true);", cb)
+                time.sleep(0.5)
+                try:
+                    cb.click()
+                except ElementClickInterceptedException:
+                    driver.execute_script("arguments[0].click();", cb)
+                print("Checkbox zaznaczony.")
+                break
+        else:
+            print("Nie znaleziono żadnego aktywnego checkboxa.")
+    except Exception as e:
+        print("Błąd przy próbie zaznaczenia checkboxa:", e)
 
     time.sleep(random.uniform(3, 8))
 
@@ -68,7 +72,7 @@ def fill_and_submit_form(driver):
         submit = wait.until(EC.element_to_be_clickable(
             (By.XPATH, "//button[contains(.,'Wyślij')]")))
         driver.execute_script("arguments[0].scrollIntoView(true);", submit)
-        time.sleep(0.5)
+        time.sleep(1)
         try:
             submit.click()
         except ElementClickInterceptedException:
@@ -77,9 +81,9 @@ def fill_and_submit_form(driver):
     except TimeoutException:
         print("Nie znaleziono przycisku 'Wyślij'.")
 
-    # oczekiwanie na redirect do URL zawierającego "podziekowanie"
+    # oczekiwanie na przekierowanie zawierające "podziekowanie"
     try:
-        WebDriverWait(driver, 30).until(
+        WebDriverWait(driver, 20).until(
             lambda d: "podziekowanie" in d.current_url.lower()
         )
         print("Podziękowanie – formularz wysłany.")
@@ -87,7 +91,7 @@ def fill_and_submit_form(driver):
     except TimeoutException:
         print("Brak przekierowania do URL zawierającego 'podziekowanie':", driver.current_url)
 
-    # logi
+    # logi przeglądarki
     try:
         logs = driver.get_log("browser")
     except Exception:
@@ -114,21 +118,19 @@ def process_form(form_url):
 
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(form_url)
+    wait = WebDriverWait(driver, 15)
 
-    # sprawdź załadowanie
     try:
-        WebDriverWait(driver, 15).until(
-            EC.presence_of_element_located((By.TAG_NAME, "body"))
-        )
+        wait.until(EC.presence_of_element_located((By.TAG_NAME, "body")))
     except TimeoutException:
         print("Strona nie załadowała się poprawnie.")
         driver.quit()
         return {"URL": form_url, "Error": "BŁĄD 404"}
 
-    accept_cookies(driver)
+    accept_cookies(driver, wait)
     time.sleep(random.uniform(3, 8))
 
-    result = fill_and_submit_form(driver)
+    result = fill_and_submit_form(driver, wait)
     print("Wynik:", result)
     driver.quit()
     return result
