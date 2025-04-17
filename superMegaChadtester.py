@@ -1,7 +1,5 @@
-import os
 import time
 import random
-import tempfile
 import pandas as pd
 import requests
 from selenium import webdriver
@@ -12,15 +10,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 
-if os.getenv("GITHUB_ACTIONS") == "true":
-    chromedriver_path = "/usr/bin/chromedriver"
-else:
-    chromedriver_path = "./chromedriver"
-
 def send_discord_notification(webhook_url, message):
     payload = {"content": message}
     try:
         response = requests.post(webhook_url, json=payload)
+        # Discord zwraca status 204 przy poprawnym wysłaniu wiadomości
         if response.status_code == 204:
             print("Powiadomienie Discord wysłane.")
         else:
@@ -94,7 +88,7 @@ def fill_and_submit_form(driver, wait):
         print("Przekierowano do strony podziękowania. Formularz wysłany.")
         result["Formularz"] = "Wysłany"
     except TimeoutException:
-        print("Brak przekierowania do strony podziękowania. Aktualny URL:", driver.current_url)
+        print("Brak przekierowania do strony podziękowania w ciągu 30 sekund. Aktualny URL:", driver.current_url)
     
     try:
         logs = driver.get_log("browser")
@@ -130,19 +124,18 @@ def process_form(form_url):
     
     chrome_options = Options()
     chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-gpu")
+   
+    chrome_options.add_argument('--headless')
+
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--user-data-dir=/tmp/unique_chrome_profile")
     chrome_options.set_capability("goog:loggingPrefs", {"browser": "ALL"})
     
-    if os.getenv("GITHUB_ACTIONS") == "true":
-        chrome_options.add_argument("--headless")
-    else:
-        # Używamy unikalnego katalogu danych
-        user_data_dir = tempfile.mkdtemp()
-        chrome_options.add_argument(f"--user-data-dir={user_data_dir}")
     
-    service = Service(chromedriver_path)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
+    
+    
+    driver = webdriver.Chrome(options=chrome_options)
+    
     
     driver.get(form_url)
     wait = WebDriverWait(driver, 15)
