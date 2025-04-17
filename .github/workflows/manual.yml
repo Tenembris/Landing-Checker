@@ -29,9 +29,9 @@ jobs:
           sudo dpkg -i chrome.deb || sudo apt-get install -fy
 
       - name: Setup ChromeDriver
-        uses: nanasess/setup-chromedriver@v1
+        uses: nanasess/setup-chromedriver@v2
         with:
-          chromedriver-version: 'latest'
+          chromeapp: google-chrome-stable
 
       - name: Run Python script
-        run: python superMegaChadtester.py   # zamień na swoją nazwę pliku
+        run: python superMegaChadtester.py   # zamień na nazwę Twojego pliku
