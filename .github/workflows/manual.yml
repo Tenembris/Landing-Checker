@@ -3,7 +3,7 @@ name: Daily Selenium Job
 # Uruchamiaj codziennie o 7:00 UTC (9:00 czasu polskiego latem, 8:00 zimą)
 on:
   schedule:
-    - cron:  "0 8 25 * *"
+    - cron:  "25 8 * * *"
   workflow_dispatch:  # umożliwia ręczne odpalenie workflow z interfejsu GitHub
 
 jobs:
@@ -49,4 +49,4 @@ jobs:
       - name: Run Python script
         env:
           # DISPLAY: :99  # jeśli używasz Xvfb i trybu graficznego
-        run: python script.py
+         run: python superMegaChadtester.py
