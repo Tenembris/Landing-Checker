@@ -144,7 +144,7 @@ def main():
         print("Błąd wczytywania CSV:", e)
         return
 
-    webhook = "https://discord.com/api/webhooks/1350026426040057889/bA7k5h7e6SqyeD0O-ejicgMBZg918SOapcVTNP3WFcTRenab-BSxwIZ209oyy668_AHc"
+    webhook = "https://discord.com/api/webhooks/1362678135111422052/iuYE3qLbZ3eCgd6iM3pX_1d9ghLuMDcTUf3G4HQTf_BUf6G5vY_nJenQS1OObQFy4Ixt"
     for link in links:
         res = process_form(link)
         if not res:
