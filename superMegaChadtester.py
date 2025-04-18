@@ -32,7 +32,6 @@ def accept_cookies(driver, wait):
 def fill_and_submit_form(driver, wait):
     result = {"URL": driver.current_url, "Formularz": "Nie wysłany"}
 
-    # wypełnianie pól tekstowych
     for field_id, value, name in [
         ("form-field-FirstName", "test", "FirstName"),
         ("form-field-LastName", "Testowy", "LastName"),
@@ -47,7 +46,6 @@ def fill_and_submit_form(driver, wait):
         except Exception:
             print(f"Nie znaleziono pola {name}.")
 
-    # zaznaczenie pierwszego widocznego checkboxa
     try:
         checkboxes = driver.find_elements(By.CSS_SELECTOR, "input[type='checkbox']")
         for cb in checkboxes:
@@ -67,7 +65,6 @@ def fill_and_submit_form(driver, wait):
 
     time.sleep(random.uniform(3, 8))
 
-    # przycisk Wyślij
     try:
         submit = wait.until(EC.element_to_be_clickable(
             (By.XPATH, "//button[contains(.,'Wyślij')]")))
@@ -81,7 +78,6 @@ def fill_and_submit_form(driver, wait):
     except TimeoutException:
         print("Nie znaleziono przycisku 'Wyślij'.")
 
-    # oczekiwanie na przekierowanie zawierające "podziekowanie"
     try:
         WebDriverWait(driver, 20).until(
             lambda d: "podziekowanie" in d.current_url.lower()
@@ -91,7 +87,6 @@ def fill_and_submit_form(driver, wait):
     except TimeoutException:
         print("Brak przekierowania do URL zawierającego 'podziekowanie':", driver.current_url)
 
-    # logi przeglądarki
     try:
         logs = driver.get_log("browser")
     except Exception:
@@ -145,18 +140,25 @@ def main():
         return
 
     webhook = "https://discord.com/api/webhooks/1362678135111422052/iuYE3qLbZ3eCgd6iM3pX_1d9ghLuMDcTUf3G4HQTf_BUf6G5vY_nJenQS1OObQFy4Ixt"
+    errors_found = False
+
     for link in links:
         res = process_form(link)
         if not res:
             continue
         if res.get("Error") == "BŁĄD 404":
+            errors_found = True
             send_discord_notification(webhook, f"BŁĄD 404: {link}")
         elif res.get("Formularz") != "Wysłany":
+            errors_found = True
             send_discord_notification(
                 webhook,
                 f"Formularz nie wysłany: {link}\nURL: {res['URL']}"
             )
         time.sleep(random.uniform(3, 8))
+
+    if not errors_found:
+        send_discord_notification(webhook, "Test przeprowadzony. Brak problemów")
 
 if __name__ == "__main__":
     main()
